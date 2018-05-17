@@ -23,7 +23,11 @@ urlpatterns = [
    path('api/day/<int:year>/<int:month>/<int:day>/', views.DayDetailView.as_view(), name='day-list'), 
    url(r'^api/registration/$', views.RegView.as_view(), name='registration'), 
    url(r'^api/meal/(?P<name>.+)/$', views.MealSearchView.as_view(), name='meal-list'), 
-   url(r'^api/activity/(?P<name>.+)/$', views.ActivitySearchView.as_view(), name='meal-list'),      
+   url(r'^api/activity/(?P<name>.+)/$', views.ActivitySearchView.as_view(), name='meal-list'),
+   path('api/day/<int:year>/<int:month>/<int:day>/meals/', views.MealToDayView.as_view(), name='day-meals'),
+   path('api/day/<int:year>/<int:month>/<int:day>/meals/<int:pk>/', views.MealFromDayView.as_view(), name='day-meals'), 
+   path('api/day/<int:year>/<int:month>/<int:day>/activities/', views.ActivityToDayView.as_view(), name='day-activities'),
+   path('api/day/<int:year>/<int:month>/<int:day>/activities/<int:pk>/', views.ActivityFromDayView.as_view(), name='day-activities'), 
    url(r'^api/profile/bmi/(?P<pk>[0-9]+)/$', views.BodyIndexView.as_view(), name='bmi-index'),
 ]
 

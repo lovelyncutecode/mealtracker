@@ -340,11 +340,11 @@ class ProfileView(APIView):
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
+#okei
 class DayDetailView(APIView):
     #permission_classes = (IsAuthenticated,)
     
     def get(self, request, year, month, day, format=None):
-        from django.db import connection
         date = str(year)+'-'+str(month)+'-'+str(day)
         queryset = Day.objects.filter(date=date)
         
@@ -352,8 +352,6 @@ class DayDetailView(APIView):
         serializer_class = DayExtSerializer(queryset, many=True)
         return Response(serializer_class.data)
     
-    #!!!!!!!!!!!!!!!Adding and deleting meals and activities!!!!!!!!!!!!!!!!!!!!!!!!
-
     '''def put(self, request, pk, format=None):
         day = self.get_object(pk)
         daymeal = request.data.pop('meals')
@@ -382,27 +380,8 @@ class DayDetailView(APIView):
                 if ser.is_valid():
                     ser.save()        
             return Response(serializer.data)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-    ''' 
-    def post(self, request, format=None):
-        serializer = DaySerializer(data=request.data)
-        
-        if serializer.is_valid():
-            daymeal = request.data.pop('meals')
-            dayact = request.data.pop('activities') 
-            user = User.objects.filter(id=request.data.pop('user')).first()
-            day = Day.objects.create(user=user,**request.data)
-            for curmeal in daymeal:
-                tres = Meal.objects.filter(name=curmeal.pop('meal')).first()
-                DayMeal.objects.create(meal=tres,
-                             amount=curmeal.pop('amount'),
-                             day=day) 
-            for curact in dayact:
-                tres = Activity.objects.filter(name=curact.pop('activity')).first()
-                DayActivity.objects.create(activity=tres,day=day)     
-            return Response(serializer.data, status=status.HTTP_201_CREATED)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)'''
+    
     def delete(self, request, year,month,day, format=None):
         date = str(year)+'-'+str(month)+'-'+str(day)
         day = self.get_object(date)
@@ -424,7 +403,54 @@ class DayDetailView(APIView):
             return Day.objects.filter(date=date).first()
         except Property.DoesNotExist:
             raise Http404
-            
+
+#okei 
+class MealToDayView(APIView):
+    def post(self, request, year, month, day, format=None):
+        date = str(year)+'-'+str(month)+'-'+str(day)
+        queryset = Day.objects.get_or_create(date=date,user_id=request.user.id)
+        DayMeal.objects.create(meal_id=request.data['meal'],amount=request.data['amount'],day_id=queryset[0].id)
+        return Response(status=status.HTTP_201_CREATED)
+
+#okei
+class ActivityToDayView(APIView):
+    def post(self, request, year, month, day, format=None):
+        date = str(year)+'-'+str(month)+'-'+str(day)
+        queryset = Day.objects.get_or_create(date=date,user_id=request.user.id)
+        DayActivity.objects.create(activity_id=request.data['activity'],day_id=queryset[0].id)
+        return Response(status=status.HTTP_201_CREATED)
+
+class MealFromDayView(APIView):
+    def get(self, request, year, month, day, format=None):
+        date = str(year)+'-'+str(month)+'-'+str(day)
+        queryset = Day.objects.filter(date=date)
+        
+        model = Day
+        serializer_class = DayExtSerializer(queryset, many=True)
+        return Response(serializer_class.data)
+
+    def delete(self, request, year, month, day,pk, format=None):
+        date = str(year)+'-'+str(month)+'-'+str(day)
+        queryset = Day.objects.get(date=date,user_id=request.user.id)
+        DayMeal.objects.filter(meal_id=pk,amount=request.data['amount'],day_id=queryset.id).first().delete()
+        return Response(status=status.HTTP_201_CREATED)     
+
+#okei
+class ActivityFromDayView(APIView):
+    def get(self, request, year, month, day, format=None):
+        date = str(year)+'-'+str(month)+'-'+str(day)
+        queryset = Day.objects.filter(date=date)
+        
+        model = Day
+        serializer_class = DayExtSerializer(queryset, many=True)
+        return Response(serializer_class.data)
+
+    def delete(self, request, year, month, day,pk, format=None):
+        date = str(year)+'-'+str(month)+'-'+str(day)
+        queryset = Day.objects.get(date=date,user_id=request.user.id)
+        DayActivity.objects.filter(activity_id=pk,day_id=queryset.id).first().delete()
+        return Response(status=status.HTTP_201_CREATED)
+
 class ProfileDetailView(APIView):
     #permission_classes = (IsAuthenticated,)
     

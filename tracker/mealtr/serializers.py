@@ -79,7 +79,10 @@ class DayExtSerializer(serializers.ModelSerializer):
              AND mealtr_daymeal.day_id=%s",[obj.id])
             res=cursor.fetchone()
             res=res[0]
-            gain=float("{0:.2f}".format(res))
+            if res:
+                gain=float("{0:.2f}".format(res))
+            else:
+                gain=0    
         return gain
 
     def loss_m(self, obj):
@@ -91,7 +94,10 @@ class DayExtSerializer(serializers.ModelSerializer):
              AND mealtr_dayactivity.day_id=%s",[obj.id])
             res=cursor.fetchone()
             res=res[0]
-            loss=float("{0:.2f}".format(res))
+            if res:
+                loss=float("{0:.2f}".format(res))
+            else:
+                loss=0    
         return loss
 
     class Meta:
